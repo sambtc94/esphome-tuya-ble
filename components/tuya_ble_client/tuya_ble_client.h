@@ -59,7 +59,7 @@ class TuyaBLEClient : public esp32_ble_client::BLEClientBase, virtual public TYB
 
     void connect() { esp32_ble_client::BLEClientBase::connect(); }
 
-    bool connected() { return esp32_ble_client::BLEClientBase::state_ == esp32_ble_tracker::ClientState::ESTABLISHED; }
+    bool connected() { return esp32_ble_client::BLEClientBase::state() == esp32_ble_tracker::ClientState::ESTABLISHED; }
 
     void disconnect() { esp32_ble_client::BLEClientBase::disconnect(); }
 

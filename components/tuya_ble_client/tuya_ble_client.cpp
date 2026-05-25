@@ -1,4 +1,5 @@
 #include "tuya_ble_client.h"
+#include "esp_random.h"
 
 namespace esphome {
 namespace tuya_ble_client {
@@ -18,14 +19,8 @@ void TuyaBLEClient::set_state(esp32_ble_tracker::ClientState st) {
     case esp32_ble_tracker::ClientState::IDLE:
       ESP_LOGD(TAG, "IDLE");
       break;
-    case esp32_ble_tracker::ClientState::SEARCHING:
-      ESP_LOGD(TAG, "SEARCHING");
-      break;
     case esp32_ble_tracker::ClientState::DISCOVERED:
       ESP_LOGD(TAG, "DISCOVERED");
-      break;
-    case esp32_ble_tracker::ClientState::READY_TO_CONNECT:
-      ESP_LOGD(TAG, "READY_TO_CONNECT");
       break;
     case esp32_ble_tracker::ClientState::CONNECTING:
       ESP_LOGD(TAG, "CONNECTING");
@@ -319,7 +314,7 @@ void TuyaBLEClient::register_for_notifications() {
   ESP_LOGD(TAG, "Listen for notifications");
   esp_err_t status = esp_ble_gattc_register_for_notify(this->get_gattc_if(), this->get_remote_bda(), this->notification_char->handle);
   if(status) {
-    ESP_LOGW(TAG, "[%d] [%s] esp_ble_gattc_register_for_notify failed, status=%d", this->get_conn_id(), this->address_str_.c_str(), status);
+    ESP_LOGW(TAG, "[%d] [%s] esp_ble_gattc_register_for_notify failed, status=%d", this->get_conn_id(), this->address_str_, status);
   }
 }
 
@@ -374,7 +369,7 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
     }
     case ESP_GATTC_SEARCH_CMPL_EVT:
     case ESP_GATTC_OPEN_EVT: {
-      if(esp32_ble_client::BLEClientBase::state_ == esp32_ble_tracker::ClientState::ESTABLISHED) {
+      if(esp32_ble_client::BLEClientBase::state() == esp32_ble_tracker::ClientState::ESTABLISHED) {
         this->register_for_notifications();
         if(!node->has_session_key()) {
           this->should_disconnect = false;
@@ -456,7 +451,7 @@ void TuyaBLEClient::loop() {
 
       if(node->has_session_key()) {
         // Prevent continuous reconnecting
-        if(esp32_ble_client::BLEClientBase::state_ == esp32_ble_tracker::ClientState::READY_TO_CONNECT && !node->has_command()) { // TODO: OR when session_key is expired
+        if(esp32_ble_client::BLEClientBase::state() == esp32_ble_tracker::ClientState::DISCOVERED && !node->has_command()) { // TODO: OR when session_key is expired
           return;
         }
 
