@@ -91,6 +91,7 @@ class TYBLEClient {
     virtual void set_address(uint64_t address) = 0;
     virtual bool connected() = 0;
     virtual void disconnect() = 0;
+    virtual esp32_ble_tracker::ClientState state() const = 0;
     virtual void set_disconnect_callback(std::function<void()> &&f) = 0;
     virtual bool parse_device(const esp32_ble_tracker::ESPBTDevice &device) = 0;
     virtual void write_data(TuyaBLECode code, uint32_t *seq_num, unsigned char *data, size_t size, unsigned char *key, uint32_t response_to = 0, int protocol_version = 3) = 0;
