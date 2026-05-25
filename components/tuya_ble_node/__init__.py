@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import tuya_ble_tracker, tuya_ble_client
 from esphome.const import CONF_ID, CONF_MAC_ADDRESS
 
-AUTO_LOAD = ["md5"]
+AUTO_LOAD = ["md5", "sensor"]
 DEPENDENCIES = ["tuya_ble_client", "esp32"]
 
 tuya_ble_node_ns = cg.esphome_ns.namespace("tuya_ble_node")
