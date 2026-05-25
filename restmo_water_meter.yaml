@@ -38,7 +38,11 @@ external_components:
       type: git
       url: https://github.com/pcr20/esphome-tuya-ble
       ref: main
-    components: [tuya_ble_client, tuya_ble_node, tuya_ble_tracker]
+    components:
+      - tuya_ble_client
+      - tuya_ble_node
+      - tuya_ble_tracker
+      - tuya_ble_node.sensor
 
 esp32_ble_tracker:
 
