@@ -2,9 +2,7 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
 from esphome.components import tuya_ble_node
-from esphome.const import CONF_ID, CONF_NAME
-
-from .. import tuya_ble_node_ns
+from esphome.const import CONF_ID
 
 DEPENDENCIES = ["tuya_ble_node"]
 
