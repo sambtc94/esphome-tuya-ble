@@ -287,8 +287,10 @@ void TuyaBLEClient::process_data(TYBLENode *node) {
         break;
 
       default:
-        // Handle incoming DP data (FUN_RECEIVE_DP=0x8001, FUN_RECEIVE_DP_V4=0x8006, etc.)
+        // Dispatch all other codes as DP data — covers FUN_RECEIVE_DP (0x8001),
+        // FUN_RECEIVE_DP_V4 (0x8006), and the status response (0x0003)
         {
+          ESP_LOGD(TAG, "Received code=0x%04X decrypted_size=%d", (uint16_t)code, decrypted_size);
           size_t pos = 0;
           while(pos + 4 <= decrypted_size) {
             uint8_t dp_id = decrypted_data[pos];
@@ -296,6 +298,7 @@ void TuyaBLEClient::process_data(TYBLENode *node) {
             uint16_t dp_len = ((uint16_t)decrypted_data[pos + 2] << 8) | decrypted_data[pos + 3];
             pos += 4;
             if(pos + dp_len > decrypted_size) break;
+            ESP_LOGD(TAG, "DP id=%d type=0x%02X len=%d", dp_id, dp_type, dp_len);
             node->on_dp_received(dp_id, dp_type, dp_len, &decrypted_data[pos]);
             pos += dp_len;
           }
@@ -366,6 +369,7 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
 
       if(node->has_session_key()) {
         this->set_address(0);
+        node->request_status();  // queue a status request to trigger reconnection
       }
     }
     case ESP_GATTC_SEARCH_CMPL_EVT:
