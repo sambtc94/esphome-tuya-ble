@@ -281,6 +281,7 @@ void TuyaBLEClient::process_data(TYBLENode *node) {
           if(decrypted_data[0] == 0 || decrypted_data[0] == 2) { // Pair success or already paired
             node->is_paired = true;
             ESP_LOGD(TAG, "Paired succesfully!");
+            node->request_status();
           }
         }
         break;
@@ -392,7 +393,7 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
             node->pair();
           }
           else if(node->is_paired && !node->has_command()) {
-            node->request_status();
+            this->disconnect_when_appropriate();
           }
           else if(!node->has_command()) {
             this->disconnect_when_appropriate();
