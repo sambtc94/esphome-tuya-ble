@@ -21,7 +21,6 @@ api:
 ota:
   - platform: esphome
 
-
 wifi:
   networks:
     - ssid: !secret wifi_ssid
@@ -56,49 +55,51 @@ tuya_ble_node:
     uuid: !secret restmo_uuid
     tuya_ble_client_id: tuya_client
 
-tuya_ble_node.sensor:
-  - tuya_ble_node_id: restmo_node
-    sensors:
-      # DP 1 — water_use_data: cumulative total (unit 0.1 L → scale 0.1)
-      - dp_id: 1
-        scale: 0.1
-        sensor:
-          name: "Water Total"
-          unit_of_measurement: "L"
-          accuracy_decimals: 1
-          device_class: water
-          state_class: total_increasing
-          icon: mdi:counter
+sensor:
+  # DP 1 — water_use_data: cumulative total (unit 0.1 L)
+  - platform: tuya_ble_node
+    tuya_ble_node_id: restmo_node
+    dp_id: 1
+    scale: 0.1
+    name: "Water Total"
+    unit_of_measurement: "L"
+    accuracy_decimals: 1
+    device_class: water
+    state_class: total_increasing
+    icon: mdi:counter
 
-      # DP 2 — water_once: session usage (unit 0.1 L → scale 0.1)
-      - dp_id: 2
-        scale: 0.1
-        sensor:
-          name: "Water Session"
-          unit_of_measurement: "L"
-          accuracy_decimals: 1
-          device_class: water
-          state_class: measurement
-          icon: mdi:water
+  # DP 2 — water_once: session usage (unit 0.1 L)
+  - platform: tuya_ble_node
+    tuya_ble_node_id: restmo_node
+    dp_id: 2
+    scale: 0.1
+    name: "Water Session"
+    unit_of_measurement: "L"
+    accuracy_decimals: 1
+    device_class: water
+    state_class: measurement
+    icon: mdi:water
 
-      # DP 4 — voltage_current: battery level (unit %)
-      - dp_id: 4
-        scale: 1.0
-        sensor:
-          name: "Battery Level"
-          unit_of_measurement: "%"
-          accuracy_decimals: 0
-          device_class: battery
-          state_class: measurement
-          icon: mdi:battery
+  # DP 4 — voltage_current: battery level (%)
+  - platform: tuya_ble_node
+    tuya_ble_node_id: restmo_node
+    dp_id: 4
+    scale: 1.0
+    name: "Battery Level"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    device_class: battery
+    state_class: measurement
+    icon: mdi:battery
 
-      # DP 5 — flow_velocity: live flow rate (unit 0.1 L/min → scale 0.1)
-      - dp_id: 5
-        scale: 0.1
-        sensor:
-          name: "Water Flow Rate"
-          unit_of_measurement: "L/min"
-          accuracy_decimals: 1
-          device_class: water
-          state_class: measurement
-          icon: mdi:water-pump
+  # DP 5 — flow_velocity: live flow rate (unit 0.1 L/min)
+  - platform: tuya_ble_node
+    tuya_ble_node_id: restmo_node
+    dp_id: 5
+    scale: 0.1
+    name: "Water Flow Rate"
+    unit_of_measurement: "L/min"
+    accuracy_decimals: 1
+    device_class: water
+    state_class: measurement
+    icon: mdi:water-pump
