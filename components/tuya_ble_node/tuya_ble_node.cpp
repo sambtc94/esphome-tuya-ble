@@ -18,8 +18,8 @@ void TuyaBLENode::enqueue_command(TYBLECommand *command) {
 
 bool TuyaBLENode::has_command() {
   if(this->command_queue.size() > 0) return true;
-  if(this->reconnect_after > 0 && esphome::millis() >= this->reconnect_after) {
-    this->reconnect_after = 0;
+  if(this->reconnect_after != UINT32_MAX && esphome::millis() >= this->reconnect_after) {
+    this->reconnect_after = UINT32_MAX;
     return true;
   }
   return false;
@@ -116,9 +116,8 @@ void TuyaBLENode::request_status() {
 }
 
 void TuyaBLENode::mark_status_pending() {
-  // Delay reconnection by 30 seconds to give the device time to recover
-  // and avoid hammering it with immediate reconnect attempts.
   this->reconnect_after = esphome::millis() + 30000;
+  ESP_LOGD(TAG, "Will reconnect in 30s");
 }
 
 void TuyaBLENode::reset_session_key() {

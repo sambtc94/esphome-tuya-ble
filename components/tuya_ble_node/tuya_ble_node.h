@@ -75,7 +75,7 @@ class TuyaBLENode : public TYBLENode, public Component {
     TYBLEClient *client;
     bool has_client = false;
     uint8_t max_queued = 1;
-    uint32_t reconnect_after = 0;
+    uint32_t reconnect_after = UINT32_MAX;  // sentinel: not pending
 
     void enqueue_command(TYBLECommand *command);
 };
