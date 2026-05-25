@@ -17,7 +17,12 @@ void TuyaBLENode::enqueue_command(TYBLECommand *command) {
 }
 
 bool TuyaBLENode::has_command() {
-  return this->command_queue.size() > 0;
+  if(this->command_queue.size() > 0) return true;
+  if(this->reconnect_after > 0 && esphome::millis() >= this->reconnect_after) {
+    this->reconnect_after = 0;
+    return true;
+  }
+  return false;
 }
 
 bool TuyaBLENode::has_session_key() {
@@ -30,8 +35,10 @@ void TuyaBLENode::issue_command() {
     return;
   }
 
-  if(!this->has_command()) {
-    ESP_LOGW(TAG, "No commands to issue");
+  if(this->command_queue.size() == 0) {
+    // Triggered by reconnect timer — issue a status request
+    this->request_status();
+    return;
   }
 
   TYBLECommand *command = &this->command_queue.back();
@@ -109,15 +116,9 @@ void TuyaBLENode::request_status() {
 }
 
 void TuyaBLENode::mark_status_pending() {
-  // Queue a status request command without writing to BLE.
-  // This makes has_command() return true so loop() will reconnect.
-  TYBLECommand command;
-  command.code = TuyaBLECode::FUN_SENDER_DEVICE_STATUS;
-  command.data = {};
-  command.key = this->session_key;
-  command.response_to = 0;
-  command.protocol_version = 3;
-  this->enqueue_command(&command);
+  // Delay reconnection by 30 seconds to give the device time to recover
+  // and avoid hammering it with immediate reconnect attempts.
+  this->reconnect_after = esphome::millis() + 30000;
 }
 
 void TuyaBLENode::reset_session_key() {

@@ -291,6 +291,12 @@ void TuyaBLEClient::process_data(TYBLENode *node) {
         // FUN_RECEIVE_DP_V4 (0x8006), and the status response (0x0003)
         {
           ESP_LOGD(TAG, "Received code=0x%04X decrypted_size=%d", (uint16_t)code, decrypted_size);
+          // Log raw bytes for diagnostics
+          std::string hex = "";
+          for(size_t i = 0; i < std::min(decrypted_size, (size_t)32); i++) {
+            char buf[4]; snprintf(buf, 4, "%02X ", decrypted_data[i]); hex += buf;
+          }
+          ESP_LOGD(TAG, "Raw: %s", hex.c_str());
           size_t pos = 0;
           while(pos + 4 <= decrypted_size) {
             uint8_t dp_id = decrypted_data[pos];

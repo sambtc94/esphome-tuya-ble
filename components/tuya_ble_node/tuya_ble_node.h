@@ -56,7 +56,6 @@ class TuyaBLENode : public TYBLENode, public Component {
     void add_dp_sensor(uint8_t dp_id, float scale, sensor::Sensor *s) {
       dp_sensors_.push_back({dp_id, scale, s});
     }
-
     void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) override {
       if(len == 0 || len > 4) return;
       int32_t raw = 0;
@@ -76,6 +75,7 @@ class TuyaBLENode : public TYBLENode, public Component {
     TYBLEClient *client;
     bool has_client = false;
     uint8_t max_queued = 1;
+    uint32_t reconnect_after = 0;
 
     void enqueue_command(TYBLECommand *command);
 };
