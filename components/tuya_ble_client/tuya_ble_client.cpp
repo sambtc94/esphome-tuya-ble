@@ -372,14 +372,9 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
   switch (event) {
     case ESP_GATTC_DISCONNECT_EVT: {
       ESP_LOGD(TAG, "Disconnected!");
-
-      if(node->has_session_key()) {
-        this->set_address(0);
-        // Do NOT call request_status() here — write_char is invalid during disconnect.
-        // Instead mark a pending status request so has_command() returns true,
-        // which causes loop() to reconnect safely on the next iteration.
-        node->mark_status_pending();
-      }
+      // Reset session so parse_device will reconnect on next advertisement
+      node->reset_session_key();
+      this->set_address(0);
     }
     case ESP_GATTC_SEARCH_CMPL_EVT:
     case ESP_GATTC_OPEN_EVT: {
@@ -405,11 +400,9 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
           if(!node->is_paired && node->uuid.size() > 0 && node->device_id.size() > 0) {
             node->pair();
           }
-          else if(node->is_paired && !node->has_command()) {
-            this->disconnect_when_appropriate();
-          }
-          else if(!node->has_command()) {
-            this->disconnect_when_appropriate();
+          // Stay connected after pairing — device will push DP notifications
+          else if(node->has_command()) {
+            node->issue_command();
           }
         }
       }
@@ -459,17 +452,8 @@ void TuyaBLEClient::loop() {
     if(this->has_node(address)) {
       TYBLENode *node = this->get_node(address);
 
-      if(!node->has_command()) {
-        this->disconnect_check();
-      }
-
       if(node->has_session_key()) {
-        // Prevent continuous reconnecting
-        if(esp32_ble_client::BLEClientBase::state() == esp32_ble_tracker::ClientState::DISCOVERED && !node->has_command()) { // TODO: OR when session_key is expired
-          return;
-        }
-
-        // Check if commands are queued for this node, and issue if needed:
+        // Issue any queued commands while connected
         if(this->connected() && node->has_command()) {
           node->issue_command();
         }

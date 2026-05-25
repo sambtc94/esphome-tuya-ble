@@ -47,8 +47,6 @@ class TuyaBLENode : public TYBLENode, public Component {
 
     void request_status();
 
-    void mark_status_pending();
-
     void reset_session_key();
 
     void toggle(bool value);
@@ -75,7 +73,6 @@ class TuyaBLENode : public TYBLENode, public Component {
     TYBLEClient *client;
     bool has_client = false;
     uint8_t max_queued = 1;
-    uint32_t reconnect_after = UINT32_MAX;  // sentinel: not pending
 
     void enqueue_command(TYBLECommand *command);
 };

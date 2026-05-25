@@ -77,7 +77,6 @@ class TYBLENode {
     virtual void pair() = 0;
     virtual void request_info() = 0;
     virtual void request_status() = 0;
-    virtual void mark_status_pending() = 0;
     virtual void reset_session_key() = 0;
     virtual void toggle(bool value) = 0;
     virtual void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) {}

@@ -17,12 +17,7 @@ void TuyaBLENode::enqueue_command(TYBLECommand *command) {
 }
 
 bool TuyaBLENode::has_command() {
-  if(this->command_queue.size() > 0) return true;
-  if(this->reconnect_after != UINT32_MAX && esphome::millis() >= this->reconnect_after) {
-    this->reconnect_after = UINT32_MAX;
-    return true;
-  }
-  return false;
+  return this->command_queue.size() > 0;
 }
 
 bool TuyaBLENode::has_session_key() {
@@ -35,9 +30,8 @@ void TuyaBLENode::issue_command() {
     return;
   }
 
-  if(this->command_queue.size() == 0) {
-    // Triggered by reconnect timer — issue a status request
-    this->request_status();
+  if(!this->has_command()) {
+    ESP_LOGW(TAG, "No commands to issue");
     return;
   }
 
@@ -113,11 +107,6 @@ void TuyaBLENode::request_status() {
   ESP_LOGD(TAG, "Requesting device status...");
   unsigned char empty[1]{0};
   this->client->write_data(TuyaBLECode::FUN_SENDER_DEVICE_STATUS, &this->seq_num, empty, 0, this->session_key);
-}
-
-void TuyaBLENode::mark_status_pending() {
-  this->reconnect_after = esphome::millis() + 30000;
-  ESP_LOGD(TAG, "Will reconnect in 30s");
 }
 
 void TuyaBLENode::reset_session_key() {
