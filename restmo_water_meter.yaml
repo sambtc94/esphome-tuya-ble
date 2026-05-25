@@ -38,6 +38,7 @@ external_components:
       type: git
       url: https://github.com/pcr20/esphome-tuya-ble
       ref: main
+    refresh: 2s
     components:
       - tuya_ble_client
       - tuya_ble_node
