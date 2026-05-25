@@ -369,7 +369,10 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
 
       if(node->has_session_key()) {
         this->set_address(0);
-        node->request_status();  // queue a status request to trigger reconnection
+        // Do NOT call request_status() here — write_char is invalid during disconnect.
+        // Instead mark a pending status request so has_command() returns true,
+        // which causes loop() to reconnect safely on the next iteration.
+        node->mark_status_pending();
       }
     }
     case ESP_GATTC_SEARCH_CMPL_EVT:

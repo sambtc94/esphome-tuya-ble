@@ -47,6 +47,8 @@ class TuyaBLENode : public TYBLENode, public Component {
 
     void request_status();
 
+    void mark_status_pending();
+
     void reset_session_key();
 
     void toggle(bool value);

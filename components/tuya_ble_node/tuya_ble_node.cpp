@@ -108,6 +108,18 @@ void TuyaBLENode::request_status() {
   this->client->write_data(TuyaBLECode::FUN_SENDER_DEVICE_STATUS, &this->seq_num, empty, 0, this->session_key);
 }
 
+void TuyaBLENode::mark_status_pending() {
+  // Queue a status request command without writing to BLE.
+  // This makes has_command() return true so loop() will reconnect.
+  TYBLECommand command;
+  command.code = TuyaBLECode::FUN_SENDER_DEVICE_STATUS;
+  command.data = {};
+  command.key = this->session_key;
+  command.response_to = 0;
+  command.protocol_version = 3;
+  this->enqueue_command(&command);
+}
+
 void TuyaBLENode::reset_session_key() {
   std::fill(this->session_key, this->session_key + KEY_SIZE, 0);
   this->is_paired = false;
