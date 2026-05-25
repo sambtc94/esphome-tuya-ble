@@ -102,8 +102,15 @@ void TuyaBLENode::request_info() {
   }
 }
 
+void TuyaBLENode::request_status() {
+  ESP_LOGD(TAG, "Requesting device status...");
+  unsigned char empty[1]{0};
+  this->client->write_data(TuyaBLECode::FUN_SENDER_DEVICE_STATUS, &this->seq_num, empty, 0, this->session_key);
+}
+
 void TuyaBLENode::reset_session_key() {
   std::fill(this->session_key, this->session_key + KEY_SIZE, 0);
+  this->is_paired = false;
 }
 
 void TuyaBLENode::toggle(bool value) {

@@ -76,8 +76,10 @@ class TYBLENode {
     virtual void issue_command();
     virtual void pair();
     virtual void request_info();
+    virtual void request_status();
     virtual void reset_session_key();
     virtual void toggle(bool value);
+    virtual void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) {}
 };
 
 class TYBLEClient {

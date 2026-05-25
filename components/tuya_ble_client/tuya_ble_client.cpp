@@ -291,6 +291,19 @@ void TuyaBLEClient::process_data(TYBLENode *node) {
         break;
 
       default:
+        // Handle incoming DP data (FUN_RECEIVE_DP=0x8001, FUN_RECEIVE_DP_V4=0x8006, etc.)
+        {
+          size_t pos = 0;
+          while(pos + 4 <= decrypted_size) {
+            uint8_t dp_id = decrypted_data[pos];
+            uint8_t dp_type = decrypted_data[pos + 1];
+            uint16_t dp_len = ((uint16_t)decrypted_data[pos + 2] << 8) | decrypted_data[pos + 3];
+            pos += 4;
+            if(pos + dp_len > decrypted_size) break;
+            node->on_dp_received(dp_id, dp_type, dp_len, &decrypted_data[pos]);
+            pos += dp_len;
+          }
+        }
         break;
     }
   }
@@ -382,6 +395,9 @@ bool TuyaBLEClient::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         if(node->has_session_key()) {
           if(!node->is_paired && node->uuid.size() > 0 && node->device_id.size() > 0) {
             node->pair();
+          }
+          else if(node->is_paired && !node->has_command()) {
+            node->request_status();
           }
           else if(!node->has_command()) {
             this->disconnect_when_appropriate();
