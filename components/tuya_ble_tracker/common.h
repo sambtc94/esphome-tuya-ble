@@ -64,37 +64,36 @@ class TYBLENode {
     unsigned char local_key[6];
     unsigned char login_key[16];
     unsigned char session_key[16];
-    // There's supposedly also an auth_key, but since it's not used, it's not declared either
     std::string uuid;
     bool is_paired = false;
     uint32_t seq_num;
     uint32_t last_detected;
     int rssi;
 
-    virtual bool has_command();
-    virtual bool has_session_key();
-    virtual void issue_command();
-    virtual void pair();
-    virtual void request_info();
-    virtual void request_status();
-    virtual void reset_session_key();
-    virtual void toggle(bool value);
+    virtual ~TYBLENode() = default;
+    virtual bool has_command() = 0;
+    virtual bool has_session_key() = 0;
+    virtual void issue_command() = 0;
+    virtual void pair() = 0;
+    virtual void request_info() = 0;
+    virtual void request_status() = 0;
+    virtual void reset_session_key() = 0;
+    virtual void toggle(bool value) = 0;
     virtual void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) {}
 };
 
 class TYBLEClient {
-  esp32_ble_tracker::ClientState state_;
   public:
-    virtual TYBLENode *get_node(uint64_t mac_address);
+    virtual ~TYBLEClient() = default;
+    virtual TYBLENode *get_node(uint64_t mac_address) = 0;
     virtual bool has_node(uint64_t mac_address) = 0;
-    virtual void connect_mac_address(const uint64_t mac_address);
+    virtual void connect_mac_address(const uint64_t mac_address) = 0;
     virtual void set_address(uint64_t address) = 0;
-    virtual bool connected() { return this->state_ == esp32_ble_tracker::ClientState::ESTABLISHED; }
+    virtual bool connected() = 0;
     virtual void disconnect() = 0;
-    virtual void set_disconnect_callback(std::function<void()> &&f);
-    virtual bool parse_device(const esp32_ble_tracker::ESPBTDevice &device);
-    virtual void write_data(TuyaBLECode code, uint32_t *seq_num, unsigned char *data, size_t size, unsigned char *key, uint32_t response_to = 0, int protocol_version = 3);
-    esp32_ble_tracker::ClientState state() const { return state_; }
+    virtual void set_disconnect_callback(std::function<void()> &&f) = 0;
+    virtual bool parse_device(const esp32_ble_tracker::ESPBTDevice &device) = 0;
+    virtual void write_data(TuyaBLECode code, uint32_t *seq_num, unsigned char *data, size_t size, unsigned char *key, uint32_t response_to = 0, int protocol_version = 3) = 0;
 };
 
   std::string binary_to_string(unsigned char *data, size_t size);
