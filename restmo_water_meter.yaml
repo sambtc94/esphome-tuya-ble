@@ -50,10 +50,10 @@ tuya_ble_client:
 
 tuya_ble_node:
   - id: restmo_node
-    mac_address: DC:23:52:6E:47:85
-    local_key: "E:?z-|0*Y6-h}w4F"
-    device_id: "bf1450rb3oddt7n3"
-    uuid: "f5f65aadb9453a70"
+    mac_address: !secret restmo_mac_address
+    local_key: !secret restmo_local_key
+    device_id: !secret restmo_device_id
+    uuid: !secret restmo_uuid
     tuya_ble_client_id: tuya_client
 
 tuya_ble_node.sensor:
