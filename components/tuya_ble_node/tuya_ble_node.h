@@ -51,6 +51,8 @@ class TuyaBLENode : public TYBLENode, public Component {
 
     void toggle(bool value);
 
+    void set_dp_bool(uint8_t dp_id, bool value);
+
     void add_dp_sensor(uint8_t dp_id, float scale, sensor::Sensor *s) {
       dp_sensors_.push_back({dp_id, scale, s});
     }
