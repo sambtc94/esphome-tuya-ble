@@ -59,8 +59,6 @@ async def to_code(config):
 
     parent = await cg.get_variable(config[tuya_ble_client.CONF_TUYA_BLE_CLIENT_ID])
     cg.add(var.register_client(parent))
-        parent = await cg.get_variable(config[tuya_ble_client.CONF_TUYA_BLE_CLIENT_ID])
-    cg.add(var.register_client(parent))
 
     for conf in config.get(CONF_ON_DP_UPDATE, []):
         await automation.build_callback_automation(
