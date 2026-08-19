@@ -69,12 +69,33 @@ class TuyaBLENode : public TYBLENode, public Component {
     void add_dp_sensor(uint8_t dp_id, float scale, sensor::Sensor *s) {
       dp_sensors_.push_back({dp_id, scale, s});
     }
+
+    /**
     void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) override {
       if(len == 0 || len > 4) return;
       int32_t raw = 0;
       for(uint16_t i = 0; i < len; i++) raw = (raw << 8) | value[i];
       for(auto &e : dp_sensors_) {
         if(e.dp_id == dp_id) e.sensor->publish_state(raw * e.scale);
+      }
+    }*/
+
+    void on_dp_received(uint8_t dp_id, uint8_t type, uint16_t len, const unsigned char *value) override {
+      std::vector<uint8_t> raw_data(value, value + len);
+    
+      this->dp_update_callback_.call(dp_id, type, raw_data);
+    
+      if(len == 0 || len > 4) return;
+    
+      int32_t raw = 0;
+      for(uint16_t i = 0; i < len; i++) {
+        raw = (raw << 8) | value[i];
+      }
+    
+      for(auto &e : dp_sensors_) {
+        if(e.dp_id == dp_id) {
+          e.sensor->publish_state(raw * e.scale);
+        }
       }
     }
 
