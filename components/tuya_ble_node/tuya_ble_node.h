@@ -35,6 +35,10 @@ class TuyaBLENode : public TYBLENode, public Component {
 
     bool has_session_key();
 
+    int get_rssi() {
+      return this->rssi;
+    }
+
     void issue_command();
 
     void set_device_id(std::string device_id);
