@@ -1,5 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome import automation
 from esphome.components import tuya_ble_tracker, tuya_ble_client
 from esphome.const import CONF_ID, CONF_MAC_ADDRESS
 
@@ -14,6 +15,7 @@ CONF_DEVICE_ID = 'device_id'
 CONF_LOCAL_KEY = 'local_key'
 CONF_MAX_QUEUED = 'max_queued'
 CONF_UUID = 'uuid'
+CONF_ON_DP_UPDATE = "on_dp_update"
 
 MULTI_CONF = True
 
@@ -26,6 +28,8 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_DEVICE_ID): cv.string,
             cv.Optional(CONF_UUID): cv.string,
             cv.Optional(CONF_MAX_QUEUED, default=1): cv.int_range(1, 10),
+            cv.Optional(CONF_ON_DP_UPDATE): automation.validate_automation({}),
+
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -55,3 +59,17 @@ async def to_code(config):
 
     parent = await cg.get_variable(config[tuya_ble_client.CONF_TUYA_BLE_CLIENT_ID])
     cg.add(var.register_client(parent))
+        parent = await cg.get_variable(config[tuya_ble_client.CONF_TUYA_BLE_CLIENT_ID])
+    cg.add(var.register_client(parent))
+
+    for conf in config.get(CONF_ON_DP_UPDATE, []):
+        await automation.build_callback_automation(
+            var,
+            "add_on_dp_update_callback",
+            [
+                (cg.uint8, "dp_id"),
+                (cg.uint8, "dp_type"),
+                (cg.std_vector.template(cg.uint8).operator("ref").operator("const"), "data"),
+            ],
+            conf,
+        )
