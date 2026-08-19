@@ -8,6 +8,7 @@
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/tuya_ble_tracker/common.h"
 #include "esphome/components/tuya_ble_tracker/tuya_ble_tracker.h"
+#include "esphome/core/automation.h"
 
 namespace esphome {
 namespace tuya_ble_node {
@@ -25,6 +26,9 @@ class TuyaBLENode : public TYBLENode, public Component {
   
   std::deque<struct TYBLECommand> command_queue;
   std::vector<DPSensorEntry> dp_sensors_;
+
+  CallbackManager<void(uint8_t, uint8_t, const std::vector<uint8_t> &)> dp_update_callback_;
+
 
   public:
     bool has_command();
@@ -56,6 +60,11 @@ class TuyaBLENode : public TYBLENode, public Component {
     void set_dp_enum(uint8_t dp_id, uint8_t value);
 
     void set_dp_raw(uint8_t dp_id, const std::vector<uint8_t> &value);
+
+    void add_on_dp_update_callback(
+        std::function<void(uint8_t, uint8_t, const std::vector<uint8_t> &)> callback) {
+      this->dp_update_callback_.add(std::move(callback));
+    }
 
     void add_dp_sensor(uint8_t dp_id, float scale, sensor::Sensor *s) {
       dp_sensors_.push_back({dp_id, scale, s});
