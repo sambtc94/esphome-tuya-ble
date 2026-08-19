@@ -55,6 +55,8 @@ class TuyaBLENode : public TYBLENode, public Component {
 
     void set_dp_enum(uint8_t dp_id, uint8_t value);
 
+    void set_dp_raw(uint8_t dp_id, const std::vector<uint8_t> &value);
+
     void add_dp_sensor(uint8_t dp_id, float scale, sensor::Sensor *s) {
       dp_sensors_.push_back({dp_id, scale, s});
     }
