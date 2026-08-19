@@ -150,5 +150,23 @@ void TuyaBLENode::set_dp_bool(uint8_t dp_id, bool value) {
   this->enqueue_command(&command);
 }
 
+void TuyaBLENode::set_dp_enum(uint8_t dp_id, uint8_t value) {
+
+  if(!this->has_client) {
+    ESP_LOGW(TAG, "No client registered at node");
+    return;
+  }
+
+  TYBLECommand command = {
+    TuyaBLECode::FUN_SENDER_DPS,
+    { dp_id, 0x04, 0x01, value },
+    this->session_key,
+    0,
+    3,
+  };
+
+  this->enqueue_command(&command);
+}
+
 }  // namespace tuya_ble_node
 }  // namespace esphome
