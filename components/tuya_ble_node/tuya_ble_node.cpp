@@ -168,5 +168,32 @@ void TuyaBLENode::set_dp_enum(uint8_t dp_id, uint8_t value) {
   this->enqueue_command(&command);
 }
 
+void TuyaBLENode::set_dp_raw(uint8_t dp_id, const std::vector<uint8_t> &value) {
+
+  if(!this->has_client) {
+    ESP_LOGW(TAG, "No client registered at node");
+    return;
+  }
+
+  std::vector<uint8_t> payload;
+  payload.reserve(3 + value.size());
+
+  payload.push_back(dp_id);
+  payload.push_back(0x00);  // Tuya RAW type
+  payload.push_back(value.size());
+
+  payload.insert(payload.end(), value.begin(), value.end());
+
+  TYBLECommand command = {
+    TuyaBLECode::FUN_SENDER_DPS,
+    payload,
+    this->session_key,
+    0,
+    3,
+  };
+
+  this->enqueue_command(&command);
+}
+
 }  // namespace tuya_ble_node
 }  // namespace esphome
